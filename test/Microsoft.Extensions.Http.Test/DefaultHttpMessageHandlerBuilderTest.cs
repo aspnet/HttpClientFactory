@@ -68,6 +68,40 @@ namespace Microsoft.Extensions.Http
         }
 
         [Fact]
+        public void Build_WithHandlersAndPostInitializer_CallsPositInitializerAtEnd()
+        {
+            // Arrange
+            var postInitializerHandler = Mock.Of<DelegatingHandler>();
+
+            var postInitializer = new Mock<IHttpMessageHandlerBuilderPostInitializer>();
+            postInitializer
+                .Setup(p => p.Apply(It.IsAny<HttpMessageHandlerBuilder>()))
+                .Callback<HttpMessageHandlerBuilder>(b => b.AdditionalHandlers.Add(postInitializerHandler));
+
+            var builder = new DefaultHttpMessageHandlerBuilder(postInitializer.Object)
+            {
+                PrimaryHandler = Mock.Of<HttpMessageHandler>(),
+                AdditionalHandlers =
+                {
+                    Mock.Of<DelegatingHandler>(), // Outer
+                }
+            };
+
+            // Act
+            var handler = builder.Build();
+
+            // Assert
+            Assert.Same(builder.AdditionalHandlers[0], handler);
+
+            handler = Assert.IsAssignableFrom<DelegatingHandler>(handler).InnerHandler;
+            Assert.Same(builder.AdditionalHandlers[1], handler);
+            Assert.Same(postInitializerHandler, handler);
+
+            handler = Assert.IsAssignableFrom<DelegatingHandler>(handler).InnerHandler;
+            Assert.Same(builder.PrimaryHandler, handler);
+        }
+
+        [Fact]
         public void Build_PrimaryHandlerIsNull_ThrowsException()
         {
             // Arrange
@@ -95,7 +129,7 @@ namespace Microsoft.Extensions.Http
 
             // Act & Assert
             var exception = Assert.Throws<InvalidOperationException>(() => builder.Build());
-            Assert.Equal("The 'AdditionalHandlers' must not contain a null entry.", exception.Message);
+            Assert.Equal("The 'additionalHandlers' must not contain a null entry.", exception.Message);
         }
 
         [Fact]
@@ -114,7 +148,7 @@ namespace Microsoft.Extensions.Http
             var exception = Assert.Throws<InvalidOperationException>(() => builder.Build());
             Assert.Equal(
                 "The 'InnerHandler' property must be null. " +
-                "'DelegatingHandler' instances provided to 'AdditionalHandlers' must not be reused or cached." + Environment.NewLine +
+                "'DelegatingHandler' instances provided to 'HttpMessageHandlerBuilder' must not be reused or cached." + Environment.NewLine +
                 $"Handler: '{builder.AdditionalHandlers[0].ToString()}'",
                 exception.Message);
         }

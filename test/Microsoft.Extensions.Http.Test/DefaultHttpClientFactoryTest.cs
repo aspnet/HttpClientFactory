@@ -51,7 +51,7 @@ namespace Microsoft.Extensions.Http
         {
             // Arrange
             var count = 0;
-            Options.CurrentValue.HandlerBuilderActions.Add(b =>
+            Options.CurrentValue.HttpMessageHandlerBuilderActions.Add(b =>
             {
                 count++;
             });
@@ -73,7 +73,7 @@ namespace Microsoft.Extensions.Http
         public void Factory_DisposeClient_DoesNotDisposeHandler()
         {
             // Arrange
-            Options.CurrentValue.HandlerBuilderActions.Add(b =>
+            Options.CurrentValue.HttpMessageHandlerBuilderActions.Add(b =>
             {
                 var mockHandler = new Mock<HttpMessageHandler>();
                 mockHandler

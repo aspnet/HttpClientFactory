@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,9 +67,10 @@ namespace Microsoft.Extensions.Http
             var builder = _services.GetRequiredService<HttpMessageHandlerBuilder>();
 
             var options = _optionsMonitor.Get(name);
-            for (var i = 0; i < options.HandlerBuilderActions.Count; i++)
+
+            for (var i= 0; i < options.HttpMessageHandlerBuilderActions.Count; i++)
             {
-                options.HandlerBuilderActions[i](builder);
+                options.HttpMessageHandlerBuilderActions[i](builder);
             }
 
             return builder.Build();
