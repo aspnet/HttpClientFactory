@@ -68,40 +68,6 @@ namespace Microsoft.Extensions.Http
         }
 
         [Fact]
-        public void Build_WithHandlersAndPostInitializer_CallsPositInitializerAtEnd()
-        {
-            // Arrange
-            var postInitializerHandler = Mock.Of<DelegatingHandler>();
-
-            var postInitializer = new Mock<IHttpMessageHandlerBuilderPostInitializer>();
-            postInitializer
-                .Setup(p => p.Apply(It.IsAny<HttpMessageHandlerBuilder>()))
-                .Callback<HttpMessageHandlerBuilder>(b => b.AdditionalHandlers.Add(postInitializerHandler));
-
-            var builder = new DefaultHttpMessageHandlerBuilder(postInitializer.Object)
-            {
-                PrimaryHandler = Mock.Of<HttpMessageHandler>(),
-                AdditionalHandlers =
-                {
-                    Mock.Of<DelegatingHandler>(), // Outer
-                }
-            };
-
-            // Act
-            var handler = builder.Build();
-
-            // Assert
-            Assert.Same(builder.AdditionalHandlers[0], handler);
-
-            handler = Assert.IsAssignableFrom<DelegatingHandler>(handler).InnerHandler;
-            Assert.Same(builder.AdditionalHandlers[1], handler);
-            Assert.Same(postInitializerHandler, handler);
-
-            handler = Assert.IsAssignableFrom<DelegatingHandler>(handler).InnerHandler;
-            Assert.Same(builder.PrimaryHandler, handler);
-        }
-
-        [Fact]
         public void Build_PrimaryHandlerIsNull_ThrowsException()
         {
             // Arrange

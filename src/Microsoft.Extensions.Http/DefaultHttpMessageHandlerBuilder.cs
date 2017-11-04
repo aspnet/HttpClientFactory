@@ -3,23 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 
 namespace Microsoft.Extensions.Http
 {
     internal class DefaultHttpMessageHandlerBuilder : HttpMessageHandlerBuilder
     {
-        private readonly IHttpMessageHandlerBuilderPostInitializer _postInitializer;
-
-        public DefaultHttpMessageHandlerBuilder()
-        {
-        }
-
-        public DefaultHttpMessageHandlerBuilder(IHttpMessageHandlerBuilderPostInitializer postInitializer)
-        {
-            _postInitializer = postInitializer;
-        }
-
         public override HttpMessageHandler PrimaryHandler { get; set; } = new HttpClientHandler();
 
         public override IList<DelegatingHandler> AdditionalHandlers { get; } = new List<DelegatingHandler>();
@@ -31,9 +21,7 @@ namespace Microsoft.Extensions.Http
                 var message = Resources.FormatHttpMessageHandlerBuilder_PrimaryHandlerIsNull(nameof(PrimaryHandler));
                 throw new InvalidOperationException(message);
             }
-
-            _postInitializer?.Apply(this);
-
+            
             return CreateHandlerPipeline(PrimaryHandler, AdditionalHandlers);
         }
     }
