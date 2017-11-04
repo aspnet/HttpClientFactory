@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.Http.Logging
         public static readonly EventId RequestPipelineEnd = new EventId(101, "RequestPipelineEnd");
 
         // Logging done by LoggingHttpMessageHandler - this surrounds the actual HTTP request/response
-        public static readonly EventId RequestStart = new EventId(200, "RequestStart");
-        public static readonly EventId RequestEnd = new EventId(201, "RequestEnd");
+        public static readonly EventId RequestStart = new EventId(102, "RequestStart");
+        public static readonly EventId RequestEnd = new EventId(103, "RequestEnd");
     }
 }
