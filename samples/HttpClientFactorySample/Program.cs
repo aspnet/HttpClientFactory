@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
@@ -18,25 +17,18 @@ namespace HttpClientFactorySample
 
         public static async Task Run()
         {
-            var services = new ServiceCollection()
-                .AddHttpClient("github", c =>
-                {
-                    c.BaseAddress = new Uri("https://api.github.com/");
-
-                    c.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json"); // Github API versioning
-                    c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-Sample"); // Github requires a user-agent
-                })
-
-                // Retry requests to github using our retry handler
-                .AddHttpMessageHandler("github", b => b.AdditionalHandlers.Add(new RetryHandler()))
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging(b =>
+            {
+                b.AddFilter((category, level) => true); // Spam the world with logs.
 
                 // Add console logger so we can see all the logging produced by the client by default.
-                .AddLogging(b => 
-                {
-                    b.AddFilter((category, level) => true); // Spam the world with logs.
-                    b.AddConsole(c => c.IncludeScopes = true);
-                })
-                .BuildServiceProvider();
+                b.AddConsole(c => c.IncludeScopes = true);
+            });
+
+            Configure(serviceCollection);
+
+            var services = serviceCollection.BuildServiceProvider();
 
             var factory = services.GetRequiredService<IHttpClientFactory>();
 
@@ -55,6 +47,18 @@ namespace HttpClientFactorySample
 
             Console.WriteLine("Press the ANY key to exit...");
             Console.ReadKey();
+        }
+
+        public static void Configure(IServiceCollection services)
+        {
+            services.AddHttpClient("github", c =>
+            {
+                c.BaseAddress = new Uri("https://api.github.com/");
+
+                c.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json"); // Github API versioning
+                c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-Sample"); // Github requires a user-agent
+            })
+            .AddHttpMessageHandler(() => new RetryHandler()); // Retry requests to github using our retry handler
         }
 
         private class RetryHandler : DelegatingHandler
