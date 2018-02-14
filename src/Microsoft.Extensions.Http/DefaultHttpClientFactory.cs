@@ -304,12 +304,12 @@ namespace Microsoft.Extensions.Http
             }
 
             private static readonly Action<ILogger, int, Exception> _cleanupCycleStart = LoggerMessage.Define<int>(
-                LogLevel.Debug,
+                LogLevel.Information,
                 EventIds.CleanupCycleStart,
                 "Starting HttpMessageHandler cleanup cycle with {InitialCount} items");
 
             private static readonly Action<ILogger, double, int, int, Exception> _cleanupCycleEnd = LoggerMessage.Define<double, int, int>(
-                LogLevel.Debug,
+                LogLevel.Information,
                 EventIds.CleanupCycleEnd,
                 "Ending HttpMessageHandler cleanup cycle after {ElapsedMilliseconds}ms - processed: {DisposedCount} items - remaining: {RemainingItems} items");
 
