@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.Extensions.Http;
 using Polly;
+using Polly.Registry;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -74,6 +75,96 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
+        public static IHttpClientBuilder AddPolicyHandler(
+            this IHttpClientBuilder builder, 
+            Func<HttpRequestMessage, IAsyncPolicy<HttpResponseMessage>> policyFactory)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (policyFactory == null)
+            {
+                throw new ArgumentNullException(nameof(policyFactory));
+            }
+
+            builder.AddHttpMessageHandler(() => new PolicyHttpMessageHandler(policyFactory));
+            return builder;
+        }
+
+        public static IHttpClientBuilder AddPolicyHandler(
+            this IHttpClientBuilder builder,
+            Func<IServiceProvider, HttpRequestMessage, IAsyncPolicy<HttpResponseMessage>> policyFactory)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (policyFactory == null)
+            {
+                throw new ArgumentNullException(nameof(policyFactory));
+            }
+
+            builder.AddHttpMessageHandler((services) =>
+            {
+                return new PolicyHttpMessageHandler((request) => policyFactory(services, request));
+            });
+            return builder;
+        }
+
+        public static IHttpClientBuilder AddPolicyHandlerFromRegistry(this IHttpClientBuilder builder, string policyKey)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (policyKey == null)
+            {
+                throw new ArgumentNullException(nameof(policyKey));
+            }
+
+            builder.AddHttpMessageHandler((services) =>
+            {
+                var registry = services.GetRequiredService<IReadOnlyPolicyRegistry<string>>();
+
+                // The policy might be either IAsyncPolicy or IAsyncPolicy<HttpRequestMessage> but never both.
+                // But, the handler expects IAsyncPolicy<HttpRequestMessage>, so try first for what we want and then
+                // fall back to the non-generic interface. We'll get the non-generic case throw the policy isn't registred.
+                if (!registry.TryGet<IAsyncPolicy<HttpResponseMessage>>(policyKey, out var policy))
+                {
+                    policy = registry.Get<IAsyncPolicy>(policyKey).WrapAsync(Policy.NoOpAsync<HttpResponseMessage>());
+                }
+
+                return new PolicyHttpMessageHandler(policy);
+            });
+            return builder;
+        }
+
+        public static IHttpClientBuilder AddPolicyHandlerFromRegistry(
+            this IHttpClientBuilder builder,
+            Func<IReadOnlyPolicyRegistry<string>, HttpRequestMessage, IAsyncPolicy<HttpResponseMessage>> policyFactory)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (policyFactory == null)
+            {
+                throw new ArgumentNullException(nameof(policyFactory));
+            }
+
+            builder.AddHttpMessageHandler((services) =>
+            {
+                var registry = services.GetRequiredService<IReadOnlyPolicyRegistry<string>>();
+                return new PolicyHttpMessageHandler((request) => policyFactory(registry, request));
+            });
+            return builder;
+        }
+
         /// <summary>
         /// Adds a <see cref="PolicyHttpMessageHandler"/> which will surround request execution with a <see cref="Policy"/>
         /// created by executing the provided configuration delegate. The policy builder will be preconfigured to trigger
@@ -109,7 +200,16 @@ namespace Microsoft.Extensions.DependencyInjection
             this IHttpClientBuilder builder, 
             Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>> configurePolicy)
         {
-            
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configurePolicy == null)
+            {
+                throw new ArgumentNullException(nameof(configurePolicy));
+            }
+
             var policyBuilder = Policy.Handle<HttpRequestException>().OrResult<HttpResponseMessage>(response =>
             {
                 return response.StatusCode >= HttpStatusCode.InternalServerError;

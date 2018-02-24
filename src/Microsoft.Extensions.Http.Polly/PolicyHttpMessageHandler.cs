@@ -59,6 +59,7 @@ namespace Microsoft.Extensions.Http
     public class PolicyHttpMessageHandler : DelegatingHandler
     {
         private readonly IAsyncPolicy<HttpResponseMessage> _policy;
+        private readonly Func<HttpRequestMessage, IAsyncPolicy<HttpResponseMessage>> _policyFactory;
 
         /// <summary>
         /// Creates a new <see cref="PolicyHttpMessageHandler"/>.
@@ -73,7 +74,21 @@ namespace Microsoft.Extensions.Http
 
             _policy = policy;
         }
-        
+
+        /// <summary>
+        /// Creates a new <see cref="PolicyHttpMessageHandler"/>.
+        /// </summary>
+        /// <param name="policyFactory">A function which can resolve the desired policy for a given <see cref="HttpRequestMessage"/>.</param>
+        public PolicyHttpMessageHandler(Func<HttpRequestMessage, IAsyncPolicy<HttpResponseMessage>> policyFactory)
+        {
+            if (policyFactory == null)
+            {
+                throw new ArgumentNullException(nameof(policyFactory));
+            }
+
+            _policyFactory = policyFactory;
+        }
+
         /// <inheritdoc />
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -91,6 +106,7 @@ namespace Microsoft.Extensions.Http
                 request.SetPolicyExecutionContext(context);
             }
 
+            var policy = ResolvePolicy(request);
             return _policy.ExecuteAsync((c, ct) => SendCoreAsync(request, c, ct), context, cancellationToken);
         }
 
@@ -114,6 +130,11 @@ namespace Microsoft.Extensions.Http
             }
 
             return base.SendAsync(request, cancellationToken);
+        }
+
+        private IAsyncPolicy<HttpResponseMessage> ResolvePolicy(HttpRequestMessage request)
+        {
+            return _policy ?? _policyFactory(request);
         }
     }
 }
