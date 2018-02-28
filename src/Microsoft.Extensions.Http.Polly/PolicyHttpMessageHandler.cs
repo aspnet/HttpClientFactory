@@ -32,6 +32,20 @@ namespace Microsoft.Extensions.Http
     /// non-reactive policies such as Timeout, or Cache which don't require the underlying request to fail first.
     /// </para>
     /// <para>
+    /// <see cref="PolicyHttpMessageHandler"/> and the <see cref="PollyHttpClientBuilderExtensions"/> convenience methods
+    /// only accept the generic <see cref="IAsyncPolicy{HttpResponseMessage}"/>. Generic policy instances can be created
+    /// by using the generic methods on <see cref="Policy"/> such as <see cref="Policy.TimeoutAsync{TResult}(int)"/>.
+    /// </para>
+    /// <para>
+    /// To adapt an existing non-generic <see cref="IAsyncPolicy"/>, use code like the following:
+    /// <example>
+    /// Converting a non-generic <code>IAsyncPolicy policy</code> to <see cref="IAsyncPolicy{HttpResponseMessage}"/>.
+    /// <code>
+    /// policy.WrapAsync(Policy.NoOpAsync&lt;HttpResponseMessage&gt;())
+    /// </code>
+    /// </example>
+    /// </para>
+    /// <para>
     /// The <see cref="PollyHttpClientBuilderExtensions.AddServerErrorPolicyHandler(IHttpClientBuilder, Func{PolicyBuilder{HttpResponseMessage}, IAsyncPolicy{HttpResponseMessage}})"/>
     /// method is an opinionated convenience method that supports the application of a policy for requests that fail due
     /// to a connection failure or server error (5XX HTTP status code). This kind of method supports only reactive policies
