@@ -13,7 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class PollyServiceCollectionExtensions
     {
         /// <summary>
-        /// Registers and empty <see cref="PolicyRegistry"/> in the service collection with service types
+        /// Registers an empty <see cref="PolicyRegistry"/> in the service collection with service types
         /// <see cref="IPolicyRegistry{String}"/>, and <see cref="IReadOnlyPolicyRegistry{String}"/> and returns
         /// the newly created registry.
         /// </summary>

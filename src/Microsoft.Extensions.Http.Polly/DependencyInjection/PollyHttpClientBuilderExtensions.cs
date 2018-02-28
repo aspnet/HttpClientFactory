@@ -18,37 +18,6 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         /// <summary>
         /// Adds a <see cref="PolicyHttpMessageHandler"/> which will surround request execution with the provided
-        /// <see cref="IAsyncPolicy"/>.
-        /// </summary>
-        /// <param name="builder">The <see cref="IHttpClientBuilder"/>.</param>
-        /// <param name="policy">The <see cref="IAsyncPolicy"/>.</param>
-        /// <returns>An <see cref="IHttpClientBuilder"/> that can be used to configure the client.</returns>
-        /// <remarks>
-        /// <para>
-        /// See the remarks on <see cref="PolicyHttpMessageHandler"/> for guidance on configuring policies.
-        /// </para>
-        /// </remarks>
-        public static IHttpClientBuilder AddPolicyHandler(this IHttpClientBuilder builder, IAsyncPolicy policy)
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (policy == null)
-            {
-                throw new ArgumentNullException(nameof(policy));
-            }
-
-            // Important - cache policy instances so that they are singletons per handler.
-            var innerPolicy = policy.WrapAsync(Policy.NoOpAsync<HttpResponseMessage>());
-
-            builder.AddHttpMessageHandler(() => new PolicyHttpMessageHandler(innerPolicy));
-            return builder;
-        }
-
-        /// <summary>
-        /// Adds a <see cref="PolicyHttpMessageHandler"/> which will surround request execution with the provided
         /// <see cref="IAsyncPolicy{HttpResponseMessage}"/>.
         /// </summary>
         /// <param name="builder">The <see cref="IHttpClientBuilder"/>.</param>
@@ -145,22 +114,22 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IHttpClientBuilder AddPolicyHandlerFromRegistry(
             this IHttpClientBuilder builder,
-            Func<IReadOnlyPolicyRegistry<string>, HttpRequestMessage, IAsyncPolicy<HttpResponseMessage>> policyFactory)
+            Func<IReadOnlyPolicyRegistry<string>, HttpRequestMessage, IAsyncPolicy<HttpResponseMessage>> policySelector)
         {
             if (builder == null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            if (policyFactory == null)
+            if (policySelector == null)
             {
-                throw new ArgumentNullException(nameof(policyFactory));
+                throw new ArgumentNullException(nameof(policySelector));
             }
 
             builder.AddHttpMessageHandler((services) =>
             {
                 var registry = services.GetRequiredService<IReadOnlyPolicyRegistry<string>>();
-                return new PolicyHttpMessageHandler((request) => policyFactory(registry, request));
+                return new PolicyHttpMessageHandler((request) => policySelector(registry, request));
             });
             return builder;
         }
@@ -192,7 +161,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// The policy created by <paramref name="configurePolicy"/> will be cached indefinitely per named client. Policies
         /// are generally designed to act as singletons, and can be shared when appropriate. To share a policy across multiple
         /// named clients, first create the policy and the pass it to multiple calls to 
-        /// <see cref="AddPolicyHandler(IHttpClientBuilder, IAsyncPolicy)"/> or
         /// <see cref="AddPolicyHandler(IHttpClientBuilder, IAsyncPolicy{HttpResponseMessage})"/> as desired.
         /// </para>
         /// </remarks>

@@ -64,7 +64,7 @@ namespace HttpClientFactorySample
             })
 
             // Build a totally custom policy using any criteria
-            .AddPolicyHandler(Policy.Handle<HttpRequestException>().RetryAsync())
+            .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(10)))
 
             // Use a specific named policy from the registry. Simplest way, policy is cached for the
             // lifetime of the handler.
