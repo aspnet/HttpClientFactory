@@ -99,7 +99,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 var registry = services.GetRequiredService<IReadOnlyPolicyRegistry<string>>();
 
-                policy = registry.Get<IAsyncPolicy<HttpResponseMessage>>(policyKey);
+                var policy = registry.Get<IAsyncPolicy<HttpResponseMessage>>(policyKey);
 
                 return new PolicyHttpMessageHandler(policy);
             });
