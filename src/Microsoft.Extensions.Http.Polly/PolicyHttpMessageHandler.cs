@@ -105,7 +105,7 @@ namespace Microsoft.Extensions.Http
         }
 
         /// <inheritdoc />
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
@@ -114,15 +114,24 @@ namespace Microsoft.Extensions.Http
 
             // Guarantee the existance of a context for every policy execution, but only create a new one if needed. This
             // allows later handlers to flow state if desired.
+            var cleanUpContext = false;
             var context = request.GetPolicyExecutionContext();
             if (context == null)
             {
                 context = new Context();
                 request.SetPolicyExecutionContext(context);
+                cleanUpContext = true;
             }
 
             var policy = _policy ?? SelectPolicy(request);
-            return policy.ExecuteAsync((c, ct) => SendCoreAsync(request, c, ct), context, cancellationToken);
+            var response = await policy.ExecuteAsync((c, ct) => SendCoreAsync(request, c, ct), context, cancellationToken);
+
+            if (cleanUpContext)
+            {
+                request.SetPolicyExecutionContext(null);
+            }
+
+            return response;
         }
 
         /// <summary>
