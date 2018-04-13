@@ -123,12 +123,18 @@ namespace Microsoft.Extensions.Http
                 cleanUpContext = true;
             }
 
-            var policy = _policy ?? SelectPolicy(request);
-            var response = await policy.ExecuteAsync((c, ct) => SendCoreAsync(request, c, ct), context, cancellationToken);
-
-            if (cleanUpContext)
+            HttpResponseMessage response;
+            try
             {
-                request.SetPolicyExecutionContext(null);
+                var policy = _policy ?? SelectPolicy(request);
+                response = await policy.ExecuteAsync((c, ct) => SendCoreAsync(request, c, ct), context, cancellationToken);
+            }
+            finally
+            {
+                if (cleanUpContext)
+                {
+                    request.SetPolicyExecutionContext(null);
+                }
             }
 
             return response;
