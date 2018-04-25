@@ -55,7 +55,6 @@ namespace Microsoft.Extensions.Http
         //
         // internal for tests
         internal readonly ConcurrentQueue<ExpiredHandlerTrackingEntry> _expiredHandlers;
-        private readonly TimerCallback _expiryCallback;
 
         public DefaultHttpClientFactory(
             IServiceProvider services,
@@ -100,7 +99,6 @@ namespace Microsoft.Extensions.Http
             };
 
             _expiredHandlers = new ConcurrentQueue<ExpiredHandlerTrackingEntry>();
-            _expiryCallback = ExpiryTimer_Tick;
 
             _cleanupCallback = CleanupTimer_Tick;
             _cleanupTimerLock = new object();
