@@ -138,11 +138,10 @@ namespace Microsoft.Extensions.Http
             }
 
             var entry = _activeHandlers.GetOrAdd(name, _entryFactory).Value;
-            var handler = new LifetimeTrackingHttpMessageHandlerWrapper(entry.Handler);
 
             StartHandlerEntryTimer(entry);
 
-            return handler;
+            return entry.Handler;
         }
 
         // Internal for tests
@@ -377,21 +376,6 @@ namespace Microsoft.Extensions.Http
             public static void HandlerExpired(ILogger logger, string clientName, TimeSpan lifetime)
             {
                 _handlerExpired(logger, lifetime.TotalMilliseconds, clientName, null);
-            }
-        }
-
-        // Wraps the inner handler in the same manner as HttpClient so that the caller can
-        // dispose of the handler freely without affecting it being shared with other clients
-        private sealed class LifetimeTrackingHttpMessageHandlerWrapper : DelegatingHandler
-        {
-            internal LifetimeTrackingHttpMessageHandlerWrapper(LifetimeTrackingHttpMessageHandler handler)
-                : base(handler)
-            {
-            }
-
-            protected override void Dispose(bool disposing)
-            {
-                // The lifetime of the LifetimeTrackingHttpMessageHandler is tracked separately
             }
         }
     }
