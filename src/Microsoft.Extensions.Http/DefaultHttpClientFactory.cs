@@ -117,8 +117,12 @@ namespace Microsoft.Extensions.Http
 
         public HttpClient CreateClient(string name)
         {
-            HttpMessageHandler handler = CreateHandler(name);
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
 
+            var handler = CreateHandler(name);
             var client = new HttpClient(handler, disposeHandler: false);
 
             var options = _optionsMonitor.Get(name);
