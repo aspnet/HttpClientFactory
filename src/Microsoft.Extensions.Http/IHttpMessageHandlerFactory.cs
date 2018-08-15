@@ -24,13 +24,13 @@ namespace System.Net.Http
         /// <returns>A new <see cref="HttpMessageHandler"/> instance.</returns>
         /// <remarks>
         /// <para>
-        /// Each call to <see cref="CreateHandler(string)"/> is guaranteed to return a new <see cref="HttpMessageHandler"/>
-        /// instance. Callers may cache the returned <see cref="HttpMessageHandler"/> instance indefinitely or surround
-        /// its use in a <langword>using</langword> block to dispose it when desired.
-        /// </para>
-        /// <para>
         /// The default <see cref="IHttpMessageHandlerFactory"/> implementation may cache the underlying
         /// <see cref="HttpMessageHandler"/> instances to improve performance.
+        /// </para>
+        /// <para>
+        /// The default <see cref="IHttpMessageHandlerFactory"/> implementation also manages the lifetime of the
+        /// handler created, so disposing of the <see cref="HttpMessageHandler"/> returned by this method may
+        /// have no effect.
         /// </para>
         /// </remarks>
         HttpMessageHandler CreateHandler(string name);
