@@ -67,8 +67,26 @@ namespace Microsoft.Extensions.Http
                 }
 
                 _callback = callback;
-                _timer = new Timer(_timerCallback, this, Lifetime, Timeout.InfiniteTimeSpan);
 
+                // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
+                bool restoreFlow = false;
+                try
+                {
+                    if (!ExecutionContext.IsFlowSuppressed())
+                    {
+                        ExecutionContext.SuppressFlow();
+                        restoreFlow = true;
+                    }
+                    _timer = new Timer(_timerCallback, this, Lifetime, Timeout.InfiniteTimeSpan);
+                }
+                finally
+                {
+                    // Restore the current ExecutionContext
+                    if (restoreFlow)
+                    {
+                        ExecutionContext.RestoreFlow();
+                    }
+                }
                 Volatile.Write(ref _timerInitialized, true);
             }
         }
