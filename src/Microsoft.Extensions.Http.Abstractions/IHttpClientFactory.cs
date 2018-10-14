@@ -11,7 +11,7 @@ namespace System.Net.Http
     /// </summary>
     /// <remarks>
     /// A default <see cref="IHttpClientFactory"/> can be registered in an <see cref="IServiceCollection"/>
-    /// by calling <see cref="HttpClientFactoryServiceCollectionExtensions.AddHttpClient(IServiceCollection)"/>.
+    /// by calling <see cref="M:Microsoft.Extensions.DependencyInjection.HttpClientFactoryServiceCollectionExtensions.AddHttpClient(IServiceCollection)"/>.
     /// The default <see cref="IHttpClientFactory"/> will be registered in the service collection as a singleton.
     /// </remarks>
     public interface IHttpClientFactory

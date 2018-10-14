@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Extensions.Http.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Extensions.Http.Polly.Test", "test\Microsoft.Extensions.Http.Polly.Test\Microsoft.Extensions.Http.Polly.Test.csproj", "{6C61E727-6E0B-402D-8E6E-2FE4E7590822}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Extensions.Http.Abstractions", "src\Microsoft.Extensions.Http.Abstractions\Microsoft.Extensions.Http.Abstractions.csproj", "{FFFBE581-D35E-433D-A8AE-6E29BC3A78EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{6C61E727-6E0B-402D-8E6E-2FE4E7590822}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C61E727-6E0B-402D-8E6E-2FE4E7590822}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C61E727-6E0B-402D-8E6E-2FE4E7590822}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFFBE581-D35E-433D-A8AE-6E29BC3A78EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFFBE581-D35E-433D-A8AE-6E29BC3A78EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFFBE581-D35E-433D-A8AE-6E29BC3A78EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFFBE581-D35E-433D-A8AE-6E29BC3A78EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +76,7 @@ Global
 		{0A0C4C1A-3A07-43C1-8A74-4DE193D50939} = {BAD8867C-73F7-4DB8-8E79-70287E67987A}
 		{69D013E2-AC8C-4BE4-87AD-FCE0826FC1C5} = {0ACA47C2-6B67-46B8-A661-C564E4450DE4}
 		{6C61E727-6E0B-402D-8E6E-2FE4E7590822} = {A7C2238C-5C0F-4D33-BE66-4015985CE962}
+		{FFFBE581-D35E-433D-A8AE-6E29BC3A78EB} = {0ACA47C2-6B67-46B8-A661-C564E4450DE4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {002C7A25-D737-4B87-AFBB-B6E0FB2DB0D3}

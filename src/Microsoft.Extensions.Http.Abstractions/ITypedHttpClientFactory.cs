@@ -15,14 +15,14 @@ namespace Microsoft.Extensions.Http
     /// <remarks>
     /// <para>
     /// The <see cref="ITypedHttpClientFactory{TClient}"/> is infrastructure that supports the
-    /// <see cref="HttpClientFactoryServiceCollectionExtensions.AddHttpClient{TClient}(IServiceCollection, string)"/> and
-    /// <see cref="HttpClientBuilderExtensions.AddTypedClient{TClient}(IHttpClientBuilder)"/> functionality. This type
+    /// <see cref="M:Microsoft.Extensions.DependencyInjection.HttpClientFactoryServiceCollectionExtensions.AddHttpClient{TClient}(IServiceCollection, string)"/> and
+    /// <see cref="M:Microsoft.Extensions.DependencyInjection.HttpClientBuilderExtensions.AddTypedClient{TClient}(IHttpClientBuilder)"/> functionality. This type
     /// should rarely be used directly in application code, use <see cref="IServiceProvider.GetService(Type)"/> instead
     /// to retrieve typed clients.
     /// </para>
     /// <para>
     /// A default <see cref="ITypedHttpClientFactory{TClient}"/> can be registered in an <see cref="IServiceCollection"/>
-    /// by calling <see cref="HttpClientFactoryServiceCollectionExtensions.AddHttpClient(IServiceCollection)"/>.
+    /// by calling <see cref="M:Microsoft.Extensions.DependencyInjection.HttpClientFactoryServiceCollectionExtensions.AddHttpClient(IServiceCollection)"/>.
     /// The default <see cref="ITypedHttpClientFactory{TClient}"/> will be registered in the service collection as a singleton
     /// open-generic service.
     /// </para>
